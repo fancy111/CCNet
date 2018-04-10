@@ -105,22 +105,37 @@ if args["save_model"] > 0:
 	print("[INFO] dumping weights to file...")
 	model.save_weights(args["weights"], overwrite=True)
 
-# randomly select a few testing digits
-for i in np.random.choice(np.arange(0, len(testLabels)), size=(10,)):
-	# classify the character
+# # randomly select a few testing digits
+# for i in np.random.choice(np.arange(0, len(testLabels)), size=(10,)):
+# 	# classify the character
+# 	probs = model.predict(testData[np.newaxis, i])
+# 	prediction = probs.argmax(axis=1)
+
+# 	# resize the image from a 28 x 28 image to a 96 x 96 image so we
+# 	# can better see it
+# 	image = (testData[i] * 255).astype("uint8")
+# 	# image = cv2.merge([image] * 3)
+# 	image = cv2.resize(image, (96, 96), interpolation=cv2.INTER_LINEAR)
+# 	cv2.putText(image, str(prediction[0]), (5, 20),
+# 		cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 255, 0), 2)
+
+# 	# show the image and prediction
+# 	print("[INFO] Predicted: {}, Actual: {},Predicted chinese: {}".format(prediction[0],
+# 		np.argmax(testLabels[i]),label_load[prediction[0]]))
+# 	cv2.imshow("Chinese", image)
+# 	cv2.waitKey(0)
+
+#找到所有判断错误的测试样本
+for i in range(len(testLabels)):
 	probs = model.predict(testData[np.newaxis, i])
 	prediction = probs.argmax(axis=1)
-
-	# resize the image from a 28 x 28 image to a 96 x 96 image so we
-	# can better see it
-	image = (testData[i] * 255).astype("uint8")
-	# image = cv2.merge([image] * 3)
-	image = cv2.resize(image, (96, 96), interpolation=cv2.INTER_LINEAR)
-	cv2.putText(image, str(prediction[0]), (5, 20),
-		cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 255, 0), 2)
-
-	# show the image and prediction
-	print("[INFO] Predicted: {}, Actual: {},Predicted chinese: {}".format(prediction[0],
-		np.argmax(testLabels[i]),label_load[prediction[0]]))
-	cv2.imshow("Chinese", image)
-	cv2.waitKey(0)
+	if prediction[0]!=np.argmax(testLabels[i]):
+		image = (testData[i] * 255).astype("uint8")
+		image = cv2.resize(image, (96, 96), interpolation=cv2.INTER_LINEAR)
+		cv2.putText(image, str(prediction[0]), (5, 20),
+			cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 255, 0), 2)
+		# show the image and prediction
+		print("[ERROR PREDICTION]Predicted: {}, Actual: {},Predicted chinese: {}".format(prediction[0],
+			np.argmax(testLabels[i]),label_load[prediction[0]]))
+		cv2.imshow("Chinese", image)
+		cv2.waitKey(0)
